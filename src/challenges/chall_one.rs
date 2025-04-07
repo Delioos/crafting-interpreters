@@ -21,8 +21,8 @@ struct Node<T> {
 #[derive(Debug)]
 struct LinkedLinkedList {
     value: Node<String>,
-    next: Node<Node<String>>, 
-    prev: Node<Node<String>>, 
+    next: Option<Node<Node<String>>>, 
+    prev: Option<Node<Node<String>>>, 
 }
 
 
@@ -38,7 +38,7 @@ impl<T> Node<T> {
 
 impl LinkedLinkedList {
     fn new() -> Self {
-       todo!() 
+        LinkedLinkedList { value: Node::new(String::from("first node")), next: None, prev: None }
     }
 }
 
