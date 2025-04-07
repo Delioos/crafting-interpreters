@@ -26,9 +26,13 @@ struct LinkedLinkedList {
 }
 
 
-impl Node<String> {
-    fn new(value: String) -> Self {
-        todo!()
+impl<T> Node<T> {
+    fn new(value: T) -> Self {
+        Node {value, next: None, prev: None }
+    }
+
+    fn into_value(self: Box<Self>) -> T {
+        self.value
     }
 }
 
