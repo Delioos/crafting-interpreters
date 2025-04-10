@@ -14,7 +14,7 @@ pub enum SetupError {
 }
 
 pub fn run_file(file: &str) {
-    println!("Running Lox interpreter over {:?}", file);
+    info!("Running Lox interpreter over {:?}", file);
 }
 
 impl Lox {

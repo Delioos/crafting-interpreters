@@ -10,7 +10,7 @@ fn main() {
 
     // Parse arguments from CLI
     //let args: Vec<&str> = std::env::args().collect::<Vec<String>>().iter().map(|s| s.as_str()).collect();
-    let args = vec!["a","b"];
+    let args = vec!["a"];
 
     match Lox::new(args) {
         Ok(_) => info!("Lox interpreter initialized successfully"),
