@@ -1,0 +1,13 @@
+// A simple Lox program
+print "Hello, World!";
+
+// Some basic arithmetic
+var a = 1 + 2;
+print a;  // Should print 3
+
+// A simple function
+fun greet(name) {
+    print "Hello, " + name + "!";
+}
+
+greet("Lox");  // Should print "Hello, Lox!" 
