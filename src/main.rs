@@ -1,10 +1,13 @@
 use tracing_subscriber;
 use crafting_interpreters::lox::Lox;
-use tracing::{error, info, debug};
+use tracing::{debug, error, info, instrument::WithSubscriber, level_filters::{self, LevelFilter}};
 
 fn main() {
     // Initialize the tracing subscriber
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_target(false)
+        .init();
 
     info!("Starting interpreter");
 
