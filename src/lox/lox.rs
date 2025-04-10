@@ -6,6 +6,7 @@ use tracing::{error, info, warn};
 
 pub struct Lox;
 
+
 #[derive(thiserror::Error,Debug)]
 pub enum SetupError {
     // todo improve later 
@@ -24,6 +25,8 @@ impl Lox {
         // Reste des cas
         match args.len() {
             0 => {
+                // TODO: improve and make a dynamic cli parser so use can type the name of the file
+                // he want to lex 
                 Err(SetupError::ArgsError(String::from("not enough args - expected 1")))
             },
             1 => {
