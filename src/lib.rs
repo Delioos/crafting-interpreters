@@ -1,6 +1,6 @@
 pub mod ast;
-pub mod parser;
-pub mod lexer;
-pub mod vm;
 pub mod challenges;
+pub mod lexer;
 pub mod lox;
+pub mod parser;
+pub mod vm;

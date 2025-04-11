@@ -19,14 +19,14 @@ trait ILinkedList {
 struct Node<T> {
     value: T,
     next: Option<Box<Node<T>>>,
-    prev: Option<Box<Node<T>>>
+    prev: Option<Box<Node<T>>>,
 }
 
 #[derive(Debug)]
 struct LinkedList {
     head: Option<Box<Node<String>>>,
     tail: Option<Box<Node<String>>>,
-    len: u32
+    len: u32,
 }
 
 impl<T> Node<T> {
@@ -34,7 +34,7 @@ impl<T> Node<T> {
         Node {
             value,
             next: None,
-            prev: None
+            prev: None,
         }
     }
 }
@@ -44,7 +44,7 @@ impl LinkedList {
         LinkedList {
             head: None,
             tail: None,
-            len: 0
+            len: 0,
         }
     }
 }
@@ -64,7 +64,7 @@ impl ILinkedList for LinkedList {
 
     fn insert(&mut self, value: String) -> bool {
         let new_node = Box::new(Node::new(value));
-        
+
         match self.head.take() {
             None => {
                 // Empty list
@@ -100,7 +100,7 @@ impl ILinkedList for LinkedList {
         }
 
         let current = self.head.take();
-        
+
         // Check if head is the target
         if let Some(ref head) = current {
             if head.value == value {
@@ -109,10 +109,10 @@ impl ILinkedList for LinkedList {
                 return Some(*current.unwrap());
             }
         }
-        
+
         // If head wasn't the target, restore it
         self.head = current.clone();
-        
+
         // Search through the rest of the list
         let mut current_ref = self.head.as_mut();
         while let Some(node) = current_ref {
@@ -152,7 +152,7 @@ mod tests {
         assert!(list.insert(String::from("first")));
         assert_eq!(list.len(), 1);
         assert_eq!(list.get_head().unwrap().value, "first");
-        
+
         assert!(list.insert(String::from("second")));
         assert_eq!(list.len(), 2);
         assert_eq!(list.get_head().unwrap().value, "second");
@@ -189,5 +189,3 @@ mod tests {
         assert!(list.find("first").is_none());
     }
 }
-
-
