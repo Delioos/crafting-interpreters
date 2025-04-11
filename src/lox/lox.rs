@@ -11,7 +11,7 @@ pub struct Lox;
 #[derive(thiserror::Error,Debug)]
 pub enum LoxError {
     // todo improve later 
-    #[error("Arguments error: {0}")]
+    #[error("Arguments error: {0} ")]
     ArgsError(String),
     #[error("meow")]
     Meow(),
@@ -50,7 +50,9 @@ impl Lox {
                 run_file(args[0])
             },
             _ => {
-                Err(LoxError::ArgsError(String::from("too many arguments - expected 1")))
+                let mut error_string =String::from("too many arguments - expected 1 got ");
+                error_string.push_str(args.len().to_string().as_str());
+                Err(LoxError::ArgsError(error_string))
             } 
         }
     }        
