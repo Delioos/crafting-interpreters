@@ -1,6 +1,6 @@
 use core::error;
 
-use std::io::{self, Write};
+use std::{io::{self, Write}, env, fs};
 
 // TODO :: peut etre integrer clap pour rendre le cli propre - ou pas et j fais mon setup mio meme
 // du cil et j apprends plus
@@ -17,8 +17,17 @@ pub enum LoxError {
     InputStreamError(String),
 }
 
-pub fn run_file(file: &str) -> Result<Lox, LoxError> {
-    info!("Running Lox interpreter over {:?}", file);
+pub fn run_file(source_file: &str) -> Result<Lox, LoxError> {
+    info!("Running Lox interpreter over {source_file}");
+    let contents = fs::read_to_string(source_file);
+
+    match contents {
+        Ok(c) => println!("file content : {c}"),
+        // TODO: improve w/ custom error
+        Err(e) => error!("error: {e}")
+    }
+
+    
     Ok(Lox)
 }
 
