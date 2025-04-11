@@ -15,6 +15,8 @@ pub enum LoxError {
     ArgsError(String),
     #[error("Input error: {0}")]
     InputStreamError(String),
+    #[error("File error: {0}")]
+    FileReadingError(String),
 }
 
 pub fn run_file(source_file: &str) -> Result<Lox, LoxError> {
@@ -22,12 +24,19 @@ pub fn run_file(source_file: &str) -> Result<Lox, LoxError> {
     let contents = fs::read_to_string(source_file);
 
     match contents {
-        Ok(c) => println!("file content : {c}"),
+        Ok(file_content) => {
+            info!("Scanning...");
+            //let tokens: Vec<Token> =
+            let tokens: Vec<&str> = file_content.trim().split(" ").collect();
+            tokens.iter().for_each(|token| {
+                println!("{token}");
+            });
+             
+        },
         // TODO: improve w/ custom error
         Err(e) => error!("error: {e}")
     }
 
-    
     Ok(Lox)
 }
 
