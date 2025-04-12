@@ -9,7 +9,7 @@ use tracing_subscriber;
 fn main() {
     // Initialize the tracing subscriber
     tracing_subscriber::fmt()
-        //.with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::DEBUG)
         .with_target(false)
         .init();
 
