@@ -1,5 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
+#[derive(Clone)]       
 pub enum TokenType {
     // Single char token
     LeftParen,
@@ -97,4 +98,3 @@ impl Display for TokenType {
         write!(f, "{}", token_str)
     }
 }
-
