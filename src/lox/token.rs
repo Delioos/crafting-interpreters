@@ -31,11 +31,11 @@ pub struct Token {
     nature: TokenType,
     lexeme: String,
     literal: Literal,
-    line: u8,
+    line: u64,
 }
 
 impl Token {
-    pub fn new(nature: TokenType, lexeme: String, literal: Literal, line: u8) -> Self {
+    pub fn new(nature: TokenType, lexeme: String, literal: Literal, line: u64) -> Self {
         Token {
             nature: nature,
             lexeme: lexeme,
