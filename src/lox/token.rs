@@ -10,7 +10,7 @@ pub enum Literal {
     Number(f64),
     True,
     False,
-    None
+    None,
 }
 
 impl fmt::Display for Literal {
@@ -45,8 +45,7 @@ impl Token {
     }
 }
 
-impl fmt::Display for Token
-{
+impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
