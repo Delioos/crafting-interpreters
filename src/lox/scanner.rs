@@ -148,7 +148,7 @@ impl Scanner {
             .skip(1)
             .take(string_len - 2 as usize)
             .collect();
-        self.add_token_with_literal(TokenType::String, Literal::Str(value));
+        let _ = self.add_token_with_literal(TokenType::String, Literal::Str(value));
         Ok(())
     }
 
@@ -177,8 +177,30 @@ impl Scanner {
         self.add_token_with_literal(TokenType::Number, Literal::Number(num))
     }
 
+
+    /**
+    * allow nesting of /* /* /* */ dlk*/ */ 
+    not so complexe because we don t need to save anything
+    */
+    fn comment_block(&mut self) -> Result<(), TokenError> {
+        let mut pair_opened = 1;
+
+        while pair_opened != 0 && !self.is_finished() {
+            // Default : advance 
+            self.advance();
+            // */ : minus 1 on  count of pair opened 
+            if self.peek() == '*' && self.peek_next() == '/' {
+                pair_opened -= 1; 
+            }
+            // /* : add 1  on count of pair opened
+            if self.peek() == '/' && self.peek_next() == '*' {
+                pair_opened += 1;
+            }
+        } 
+        return Ok(());
+    }
+
     fn identifier(&mut self) -> TokenType {
-        // TODO : understand quertos implementation
         while self.peek().is_ascii_alphanumeric() {
             self.advance();
         }
@@ -259,7 +281,13 @@ impl Scanner {
                     }
                     // idk how to handle this tbh TODO: check this implementation effect
                     return Ok(());
-                } else {
+                } else if self.match_next('*') {
+                    // C-style block comments /* ...*/ 
+                    self.comment_block();
+
+                    return Ok(());
+                } 
+                else {
                     TokenType::Slash
                 }
             }
