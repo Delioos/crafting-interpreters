@@ -31,9 +31,9 @@ pub enum ScanningError {
     #[error("[CLI] Arguments error in {0} : {1}")]
     ArgsError(String, String),
     #[error("[Line {0}] Input error in {1} : {2}")]
-    InputStreamError(u8, String, String),
+    InputStreamError(u64, String, String),
     #[error("[Line {0}] File error in {1} : {2}")]
-    FileReadingError(u8, String, String),
+    FileReadingError(u64, String, String),
 }
 
 pub fn run_file(source_file: &str) -> Result<Lox, ScanningError> {

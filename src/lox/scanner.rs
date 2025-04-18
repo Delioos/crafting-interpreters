@@ -1,3 +1,8 @@
+use std::{
+    char,
+    collections::{self, HashMap},
+};
+
 use super::{
     token::{Literal, Token},
     ScanningError, TokenType,
@@ -8,6 +13,8 @@ use tracing::error;
 enum TokenError {
     #[error("[line {0}] Error: Unexpected character \"{1}\".")]
     InvalidToken(u64, char),
+    #[error("[Line {0}] : Unterminated string")]
+    UnterminatedString(u64),
 }
 
 struct Scanner {
@@ -16,6 +23,7 @@ struct Scanner {
     start: u64,
     current: u64,
     line: u64,
+    keywords: collections::HashMap<String, TokenType>,
 }
 
 impl Scanner {
@@ -26,11 +34,37 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 1,
+            keywords: HashMap::from([
+                (String::from("and"), TokenType::And),
+                (String::from("class"), TokenType::Class),
+                (String::from("else"), TokenType::Else),
+                (String::from("false"), TokenType::False),
+                (String::from("for"), TokenType::For),
+                (String::from("fun"), TokenType::Fun),
+                (String::from("if"), TokenType::If),
+                (String::from("nil"), TokenType::Nil),
+                (String::from("or"), TokenType::Or),
+                (String::from("print"), TokenType::Print),
+                (String::from("return"), TokenType::Return),
+                (String::from("super"), TokenType::Super),
+                (String::from("this"), TokenType::This),
+                (String::from("true"), TokenType::True),
+                (String::from("var"), TokenType::Var),
+                (String::from("while"), TokenType::While),
+            ]),
         }
     }
 
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                          helpers                           */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
     fn is_finished(&self) -> bool {
         self.current >= self.source.len() as u64
+    }
+
+    fn is_alpha(&self, c: char) -> bool {
+        c.is_alphanumeric() || c == '_'
     }
 
     fn peek(&self) -> char {
@@ -38,6 +72,14 @@ impl Scanner {
             return '\0';
         }
         return self.source.chars().nth(self.current as usize).unwrap();
+    }
+
+    fn peek_next(&self) -> char {
+        let curr = (self.current + 1) as usize;
+        if curr >= self.source.len() {
+            return '\0';
+        }
+        return self.source.chars().nth(curr).expect("should be a char");
     }
 
     fn add_token(&mut self, nature: TokenType) -> Result<(), TokenError> {
@@ -73,6 +115,10 @@ impl Scanner {
         return true;
     }
 
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                 consume lexeme related shi                 */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
     fn advance(&self) -> char {
         // Should handle cleaner than with a unwrap
         self.source
@@ -81,8 +127,74 @@ impl Scanner {
             .unwrap()
     }
 
-    fn string(&self) -> TokenType {
-        todo!()
+    fn string(&mut self) -> Result<(), TokenError> {
+        while self.peek() != '"' && !self.is_finished() {
+            if self.peek() == '\n' {
+                self.advance();
+            }
+        }
+
+        if self.is_finished() {
+            return Err(TokenError::UnterminatedString(self.line));
+        }
+
+        self.advance();
+
+        // Trim the surrounding quotes
+        let string_len = self.source.len();
+        let value: String = self
+            .source
+            .chars()
+            .skip(1)
+            .take(string_len - 2 as usize)
+            .collect();
+        self.add_token_with_literal(TokenType::String, Literal::Str(value));
+        Ok(())
+    }
+
+    fn number(&mut self) -> Result<(), TokenError> {
+        while self.peek().is_ascii_digit() {
+            self.advance();
+        }
+
+        // Look for a fractional part
+        if self.peek() == '.' && self.peek_next().is_ascii_digit() {
+            self.advance();
+
+            while self.peek().is_ascii_digit() {
+                self.advance();
+            }
+        }
+
+        let string_len = self.source.len();
+        let raw: String = self
+            .source
+            .chars()
+            .skip(1)
+            .take(string_len - 2 as usize)
+            .collect();
+        let num = raw.parse::<f64>().expect("should be a float");
+        self.add_token_with_literal(TokenType::Number, Literal::Number(num))
+    }
+
+    fn identifier(&mut self) -> TokenType {
+        // TODO : understand quertos implementation
+        while self.peek().is_ascii_alphanumeric() {
+            self.advance();
+        }
+
+        let string_len = self.source.len();
+        let raw: String = self
+            .source
+            .chars()
+            .skip(1)
+            .take(string_len - 2 as usize)
+            .collect();
+
+        match self.keywords.get(&raw) {
+            Some(nature) => nature.clone(),
+            None => TokenType::Identifier,
+        }
     }
 
     fn scan_token(&mut self) -> Result<(), TokenError> {
@@ -154,9 +266,7 @@ impl Scanner {
             /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
             /*                       useless chars                        */
             /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-            ' ' => return Ok(()),
-            '\r' => return Ok(()),
-            '\t' => return Ok(()),
+            ' ' | '\r' | '\t' => return Ok(()),
             '\n' => {
                 self.line += 1;
                 return Ok(());
@@ -165,9 +275,20 @@ impl Scanner {
             /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
             /*                          Strings                           */
             /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-            '"' => self.string(),
+            '"' => {
+                let _ = self.string();
+                return Ok(());
+            }
 
-            _ => return Err(TokenError::InvalidToken(self.line, c)),
+            _ => {
+                if c.is_ascii_digit() {
+                    let _ = self.number();
+                    return Ok(());
+                } else if self.is_alpha(c) {
+                    self.identifier();
+                }
+                return Err(TokenError::InvalidToken(self.line, c));
+            }
         };
 
         let _ = self.add_token(token);
